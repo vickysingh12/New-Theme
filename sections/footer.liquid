@@ -1,0 +1,172 @@
+{% comment %}theme-check-disable UndefinedObject{% endcomment %}
+ {% style %}
+
+
+
+.footer-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  max-width: 1260px;
+  margin: auto;
+}
+
+.site-footer {
+  background-color: #333;
+  color: #fff;
+  padding: 40px 20px;
+}
+
+
+.footer-column {
+  flex: 1 1 22%;
+  margin: 10px 0;
+}
+
+.footer-column h3 {
+  margin-bottom: 20px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+  font-weight: 400; 
+  color: #fff; 
+  text-transform: uppercase; 
+  letter-spacing: 1px;
+}
+
+.footer-column ul {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-column ul li {
+  margin-bottom: 10px;
+}
+
+.footer-column ul li a {
+  color: #fff;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.footer-column ul li a:hover {
+  color: #ccc;
+}
+
+.footer-column address {
+  font-style: normal;
+  line-height: 1.8;
+}
+
+.footer-column address a {
+  color: #fff;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.footer-column address a:hover {
+  color: #ccc;
+}
+
+@media (max-width: 768px) {
+  .footer-column {
+    flex: 1 1 45%;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-container {
+    flex-direction: column;
+  }
+  .footer-column {
+    flex: 1 1 100%;
+    margin: 10px 0;
+  }
+}
+
+{% endstyle %}
+
+<footer class="site-footer">
+  <div class="footer-container">
+    <div class="footer-column">
+      <h3>Column 1</h3>
+      <ul>
+        <li><a href="#">Link 1</a></li>
+        <li><a href="#">Link 2</a></li>
+        <li><a href="#">Link 3</a></li>
+        <li><a href="#">Link 4</a></li>
+      </ul>
+    </div>
+    <div class="footer-column">
+      <h3>Column 2</h3>
+      <ul>
+        <li><a href="#">Link 1</a></li>
+        <li><a href="#">Link 2</a></li>
+        <li><a href="#">Link 3</a></li>
+        <li><a href="#">Link 4</a></li>
+      </ul>
+    </div>
+    <div class="footer-column">
+      <h3>Column 3</h3>
+      <ul>
+        <li><a href="#">Link 1</a></li>
+        <li><a href="#">Link 2</a></li>
+        <li><a href="#">Link 3</a></li>
+        <li><a href="#">Link 4</a></li>
+      </ul>
+    </div>
+    <div class="footer-column">
+      <h3>Contact Us</h3>
+      <address>
+        123 Main Street<br>
+        City, State, ZIP Code<br>
+        <a href="tel:+1234567890">+1 (234) 567-890</a><br>
+        <a href="mailto:info@example.com">info@example.com</a>
+      </address>
+    </div>
+  </div>
+</footer>
+
+
+
+
+
+{% schema %}
+{
+  "name": "t:sections.footer.name",
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    
+     
+     
+  ],
+  "settings": [
+   
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 36
+    }
+  ],
+  "default": {
+    "blocks": [
+      
+    ]
+  }
+}
+{% endschema %}

@@ -1,0 +1,450 @@
+{% liquid
+  assign banner_height = ''
+
+  if section.settings.image_height == 'medium'
+    assign banner_height = '600px'
+  endif
+  if section.settings.image_height == 'small'
+    assign banner_height = '500px'
+  endif
+  if section.settings.image_height == 'large'
+    assign banner_height = '700px'
+  endif
+  if section.settings.image_height == 'adapt'
+  endif
+%}
+<script>
+  console.log({{ section.settings.image | json }})
+</script>
+{%- style -%}
+     #Banner-{{ section.id }} {
+      background-image: url( {{ section.settings.image | image_url: width: 840 }} );
+      height: {{  banner_height }};
+      background-repeat: no-repeat;
+      background-size: cover;
+
+      {% if section.settings.image_behavior == 'fixed' %}
+      background-attachment: fixed;
+      {% endif %}
+
+      overflow: hidden;
+      position: relative;
+      padding-left: 90px;
+      padding-right: 90px;
+
+        display: flex;
+     }
+
+     #Banner-{{ section.id }} button {
+      width: 175px;
+      height: 48px;
+      /* background-color: #111111;
+      color: #FFFFFF; */
+      font-weight: 500;
+      line-height: 24px;
+      font-size: 16px;
+      border: none;
+      border-radius: 4px;
+      margin-top: 35px;
+      cursor: pointer;
+
+     }
+
+     .banner__content {
+
+      text-align: {{  section.settings.desktop_content_alignment  }};
+      max-width: 570px;
+      margin: auto;
+      margin-top: auto;
+       {% if section.settings.image_height == 'small' %}
+
+        margin-top: unset;
+
+      {% endif %}
+      padding: 20px;
+
+       {% if section.settings.show_text_box == false %}
+        background-color: transparent;
+      {% endif %}
+
+
+     }
+
+
+     .banner__content--middle-left {
+        margin-left: unset;
+        {% if section.settings.image_height == 'small' %}
+
+          margin-top: auto;
+
+        {% endif %}
+
+          }
+          .banner__content--middle-center {
+        {% if section.settings.image_height == 'small' %}
+
+          margin-top: auto;
+
+        {% endif %}
+          }
+          .banner__content--middle-right {
+            margin-right: unset;
+            {% if section.settings.image_height == 'small' %}
+
+        margin-top: auto;
+
+        {% endif %}
+     }
+
+
+     .banner__title {
+        margin: 0;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        line-height : 24px;
+        font-size: 17px;
+        margin-bottom: 10px;
+        /* color: #111111; */
+     }
+
+     .banner__heading {
+        margin: 0;
+        font-size: 68px;
+        line-height : 76px;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        color: #111111;
+     }
+
+     .banner__description {
+        margin: 0;
+        font-size: 18px;
+        line-height : 26px;
+        /* color: #111111; */
+        font-weight: 400;
+     }
+
+      @media screen and (max-width: 749px) {
+        #Banner-{{ section.id }} {
+          height:  calc({{  banner_height }}  - 150px );
+          padding-left: 15px;
+          padding-right: 15px;
+          display: flex;
+
+        }
+
+        .banner__heading {
+          font-size: 34px;
+          line-height : 38px;
+        }
+
+        .banner__content {
+          max-width: max-content;
+          padding: 8px 8px 8px 8px;
+        }
+
+        .banner__content--middle-center, .banner__content--middle-left , .banner__content--middle-right {
+          margin-top: auto;
+        }
+      }
+
+      @media screen and (min-width: 750px) {
+
+      }
+
+
+      .banner__content--top-left {
+        margin-left: unset;
+        margin-top: 10px;
+     }
+     .banner__content--top-center {
+        margin-top: 10px;
+     }
+     .banner__content--top-right {
+        margin-right: unset;
+        margin-top: 10px;
+     }
+
+     .banner__content--bottom-left {
+        margin: auto auto 16px 0;
+     }
+     .banner__content--bottom-center {
+        margin: auto auto 16px auto;
+     }
+     .banner__content--bottom-right {
+        margin: auto 0 16px auto;
+     }
+{%- endstyle -%}
+
+{%- style -%}
+  #Banner-{{ section.id }}::after {
+    opacity: {{ section.settings.image_overlay_opacity | divided_by: 100.0 }};
+  }
+{%- endstyle -%}
+
+
+
+<div
+  id="Banner-{{ section.id }}"
+  class="banner "
+>
+  {%- if section.settings.image != blank -%}
+    <div class="banner__content banner__content--{{ section.settings.desktop_content_position }} color-{{ section.settings.color_scheme }}">
+      {%- for block in section.blocks -%}
+        {% case block.type %}
+          {%- when 'heading' -%}
+            <p class="banner__title" {{ block.shopify_attributes }}>
+              {{ block.settings.heading }}
+            </p>
+
+          {%- when 'text' -%}
+            <h2 class="banner__heading" {{ block.shopify_attributes }}>
+              {{ block.settings.text }}
+            </h2>
+
+          {%- when 'buttons' -%}
+            <a href="{{ block.settings.button_link_1 }}">
+              <button>
+                {{ block.settings.button_label_1 }}
+              </button>
+            </a>
+        {%- endcase -%}
+      {%- endfor -%}
+
+    
+    </div>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.image-banner.name",
+  "tag": "section",
+  "class": "section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:sections.image-banner.settings.image.label"
+    },
+    
+    {
+      "type": "select",
+      "id": "image_height",
+      "options": [
+        {
+          "value": "adapt",
+          "label": "t:sections.image-banner.settings.image_height.options__1.label"
+        },
+        {
+          "value": "small",
+          "label": "t:sections.image-banner.settings.image_height.options__2.label"
+        },
+        {
+          "value": "medium",
+          "label": "t:sections.image-banner.settings.image_height.options__3.label"
+        },
+        {
+          "value": "large",
+          "label": "t:sections.image-banner.settings.image_height.options__4.label"
+        }
+      ],
+      "default": "medium",
+      "label": "t:sections.image-banner.settings.image_height.label",
+      "info": "t:sections.image-banner.settings.image_height.info"
+    },
+    {
+      "type": "select",
+      "id": "desktop_content_position",
+      "options": [
+        {
+          "value": "top-left",
+          "label": "t:sections.image-banner.settings.desktop_content_position.options__1.label"
+        },
+        {
+          "value": "top-center",
+          "label": "t:sections.image-banner.settings.desktop_content_position.options__2.label"
+        },
+        {
+          "value": "top-right",
+          "label": "t:sections.image-banner.settings.desktop_content_position.options__3.label"
+        },
+        {
+          "value": "middle-left",
+          "label": "t:sections.image-banner.settings.desktop_content_position.options__4.label"
+        },
+        {
+          "value": "middle-center",
+          "label": "t:sections.image-banner.settings.desktop_content_position.options__5.label"
+        },
+        {
+          "value": "middle-right",
+          "label": "t:sections.image-banner.settings.desktop_content_position.options__6.label"
+        },
+        {
+          "value": "bottom-left",
+          "label": "t:sections.image-banner.settings.desktop_content_position.options__7.label"
+        },
+        {
+          "value": "bottom-center",
+          "label": "t:sections.image-banner.settings.desktop_content_position.options__8.label"
+        },
+        {
+          "value": "bottom-right",
+          "label": "t:sections.image-banner.settings.desktop_content_position.options__9.label"
+        }
+      ],
+      "default": "middle-center",
+      "label": "t:sections.image-banner.settings.desktop_content_position.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_text_box",
+      "default": true,
+      "label": "t:sections.image-banner.settings.show_text_box.label"
+    },
+    {
+      "type": "select",
+      "id": "desktop_content_alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.image-banner.settings.desktop_content_alignment.options__1.label"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.image-banner.settings.desktop_content_alignment.options__2.label"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.image-banner.settings.desktop_content_alignment.options__3.label"
+        }
+      ],
+      "default": "center",
+      "label": "t:sections.image-banner.settings.desktop_content_alignment.label"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.all.colors.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.animation.content"
+    },
+    {
+      "type": "select",
+      "id": "image_behavior",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:sections.all.animation.image_behavior.options__1.label"
+        },
+        {
+          "value": "ambient",
+          "label": "t:sections.all.animation.image_behavior.options__2.label"
+        },
+        {
+          "value": "fixed",
+          "label": "t:sections.all.animation.image_behavior.options__3.label"
+        },
+        {
+          "value": "zoom-in",
+          "label": "t:sections.all.animation.image_behavior.options__4.label"
+        }
+      ],
+      "default": "none",
+      "label": "t:sections.all.animation.image_behavior.label"
+    }
+    
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "t:sections.image-banner.blocks.heading.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "heading",
+          "default": "t:sections.image-banner.blocks.heading.settings.heading.default",
+          "label": "t:sections.image-banner.blocks.heading.settings.heading.label"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "t:sections.image-banner.blocks.text.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "text",
+          "default": "t:sections.image-banner.blocks.text.settings.text.default",
+          "label": "t:sections.image-banner.blocks.text.settings.text.label"
+        },
+        {
+          "type": "select",
+          "id": "text_style",
+          "options": [
+            {
+              "value": "body",
+              "label": "t:sections.image-banner.blocks.text.settings.text_style.options__1.label"
+            },
+            {
+              "value": "subtitle",
+              "label": "t:sections.image-banner.blocks.text.settings.text_style.options__2.label"
+            },
+            {
+              "value": "caption-with-letter-spacing",
+              "label": "t:sections.image-banner.blocks.text.settings.text_style.options__3.label"
+            }
+          ],
+          "default": "body",
+          "label": "t:sections.image-banner.blocks.text.settings.text_style.label"
+        }
+      ]
+    },
+    {
+      "type": "buttons",
+      "name": "t:sections.image-banner.blocks.buttons.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_label_1",
+          "default": "t:sections.image-banner.blocks.buttons.settings.button_label_1.default",
+          "label": "t:sections.image-banner.blocks.buttons.settings.button_label_1.label",
+          "info": "t:sections.image-banner.blocks.buttons.settings.button_label_1.info"
+        },
+        {
+          "type": "url",
+          "id": "button_link_1",
+          "label": "t:sections.image-banner.blocks.buttons.settings.button_link_1.label"
+        }
+        
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.image-banner.presets.name",
+      "blocks": [
+        {
+          "type": "heading"
+        },
+        {
+          "type": "text"
+        },
+        {
+          "type": "buttons"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

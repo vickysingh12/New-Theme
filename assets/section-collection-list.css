@@ -1,0 +1,119 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  margin: 0;
+  padding: 0;
+}
+
+.collection-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  padding: 20px;
+}
+
+.collection-item {
+  position: relative;
+  flex: 1 1 calc(33.333% - 40px);
+  max-width: calc(33.333% - 40px);
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  overflow: hidden;
+  text-align: center;
+  background-color: #fff;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.collection-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.collection-item img {
+  width: 100%;
+  height: 280px;
+  transition: opacity 0.3s;
+}
+
+.collection-item h2 {
+  font-size: 1.2em;
+  margin: 15px 0;
+  padding: 0 10px;
+  color: #333;
+}
+
+.collection-item a {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.collection-item .hover-arrow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.5);
+  width: 48px;
+  height: 48px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s, opacity 0.3s;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.collection-item:hover .hover-arrow {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+  pointer-events: all;
+}
+
+.collection-item .hover-arrow::before {
+  content: '→';
+  font-size: 24px;
+  color: #333;
+}
+
+@media (max-width: 1200px) {
+
+
+  .collection-item img {
+    height: 250px;
+  }
+}
+
+@media (max-width: 1000px) {
+
+
+  .collection-item img {
+    height: 220px;
+  }
+
+}
+@media (max-width: 768px) {
+  .collection-item {
+      flex: 1 1 calc(50% - 20px);
+      max-width: calc(50% - 20px);
+  }
+
+  .collection-item img {
+    height: 330px;
+  }
+}
+
+@media (max-width: 480px) {
+  .collection-item {
+      flex: 1 1 100%;
+      max-width: 100%;
+  }
+}

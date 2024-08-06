@@ -1,0 +1,1305 @@
+<script>
+  console.log('collection ' , {{ collection | json  }} )
+  console.log('collection.all_products_count ' , {{ collection.all_products_count | json  }} )
+  console.log('collection.all_tags ' , {{ collection.all_tags |  json  }} )
+  console.log('collection.all_types ' , {{ collection.all_types | json  }} )
+  console.log('collection.all_vendors ' , {{ collection.all_vendors | json  }} )
+  console.log('collection.current_type ' , {{ collection.current_type | json  }} )
+  console.log('collection.current_vendor  ' , {{ collection.current_vendor | json  }} )
+  console.log('collection.default_sort_by ' , {{ collection.default_sort_by | json  }} )
+  console.log('collection.filters ' , {{ collection.filters[0].active_values | json  }} )
+  console.log('collection.metafields ' , {{ collection.metafields | json  }} )
+  console.log('collection.next_product ' , {{ collection.next_product | json  }} )
+  console.log('collection.previous_product ' , {{ collection.previous_product | json  }} )
+  console.log('collection.products ' , {{ collection.products | json  }} )
+  console.log('collection.products_count ' , {{ collection.products_count | json  }} )
+  console.log('collection.sort_by ' , {{ collection.sort_by | json  }} )
+  console.log('collection.sort_options ' , {{ collection.sort_options | json  }} )
+  console.log('collection.tags ' , {{ collection.tags | json  }} )
+  console.log('collection.url ' , {{ collection.url | json  }} )
+  console.log('filters ' , {{ filter | json  }} )
+  console.log('paginate ' , {{ paginate | json  }} )
+  console.log('paginate parts ' , {{ paginate.parts | json  }} )
+
+
+
+</script>
+{% comment %} {{ 'template-collection.css' | asset_url | stylesheet_tag }} {% endcomment %}
+{% comment %} {{ 'component-card.css' | asset_url | stylesheet_tag }} {% endcomment %}
+{% comment %} {{ 'component-price.css' | asset_url | stylesheet_tag }} {% endcomment %}
+
+ 
+
+{%- unless section.settings.quick_add == 'none' -%}
+  {% comment %} {{ 'quick-add.css' | asset_url | stylesheet_tag }} {% endcomment %}
+{%- endunless -%}
+
+{%- style -%}
+  .applied-filter-select {
+    display: flex;
+    align-items: center;
+    margin-right: 5px;
+    font-size: 14px;
+    min-width: max-content;
+  }
+
+  .collection-product-list {
+    max-width: 90%;
+    margin: auto;
+    position: relative;
+  }
+
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+    display: flex;
+  }
+
+  .product-cards {
+      display: flex;
+      flex-wrap: wrap;
+      align-self: flex-start;
+      padding-left: 30px;
+      padding-top: 10px;
+      padding-right: 10px;
+      justify-content: space-around;
+      gap: 0 10px;
+      width: 100%;
+      position: relative;
+  }
+
+  .product-count {
+
+    position: absolute;
+    right: 2px;
+    font-weight: 300;
+    top: -12px;
+    font-size: 12px;
+    color: rgb(17, 17, 17);
+    font-style: oblique;
+  }
+
+  .product-cards > div:first-child {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+
+  .product-cards.loading {
+    background-color: white;
+    opacity: 0.4;
+  }
+
+  .product-card {
+    text-decoration: none;
+    color: rgba(17, 17, 17, 1);
+    font-size: 16px;
+    font-weight: 500;
+    width: 225px;
+    margin-bottom: 30px;
+  }
+
+  .product-card h3 {
+    margin: 5px 0;
+    font-size: 1rem;
+  }
+
+  .product-card img {
+    max-width: 100%;
+  }
+
+  .product-card p {
+    color: rgba(85, 85, 85, 1);
+    font-weight: normal;
+    font-size: 17px; 
+    margin: 8px 0 0;
+  }
+
+  @media screen and (min-width: 750px) {
+      .section-{{ section.id }}-padding {
+          padding-top: {{ section.settings.padding_top }}px;
+          padding-bottom: {{ section.settings.padding_bottom }}px;
+      }
+  }
+
+  /* General styles */
+  body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background-color: #f7f9fc; /* Lighter background */
+      margin: 0;
+      padding: 0;
+      color: #333;
+  }
+
+  .filter-form {
+      min-width: 300px;
+      padding: 10px; /* Further reduced padding */
+      background-color: #ffffff; /* Light background for form */
+      border-radius: 6px; /* Reduced radius */
+      display: flex;
+      flex-direction: column;
+      gap: 1px; /* Further reduced gap */
+  }
+
+  .filter-clear {
+      text-align: center; /* Centered clear button */
+      margin-bottom: 5px; /* Further reduced margin */
+  }
+
+  .filter-clear a {
+      background-color: #007bff;
+      color: #fff;
+      text-decoration: none;
+      padding: 6px 12px; /* Further reduced padding */
+      border-radius: 20px; /* Slightly less rounded */
+      display: inline-block;
+      font-size: 12px; /* Reduced font size */
+      transition: background-color 0.3s, box-shadow 0.3s;
+  }
+
+  .filter-clear a:hover {
+      background-color: #0056b3;
+      box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1); /* Further reduced shadow */
+  }
+
+  .filter-group {
+      margin-bottom: 0px; 
+      padding-top: 8px;
+      border-top: solid 1px rgba(238, 238, 238, 1);
+      padding-bottom: 3px;
+  }
+
+  .filter-title {
+      font-size: 18px;
+      font-weight: 500;
+      height: 53px;
+      color: rgba(0, 0, 0, 1);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      padding: 15.5px 10px 15.5px 12px; 
+      border-radius: 4px; 
+      transition: background 0.3s, box-shadow 0.3s;
+      user-select: none;
+      position: relative;
+  }
+
+
+  .filter-title::after {
+      
+      content: '';
+      border: solid #888888;
+      border-width: 0 1.35px 1.35px 0;
+      display: inline-block;
+      padding: 3.5px;
+      transform: rotate(45deg);
+      position: absolute;
+      right: 5px;
+      top: 46%;
+      transform: translateY(-50%) rotate(45deg);
+  }
+
+  .filter-title.active::after {
+      transform: translateY(-50%) rotate(-135deg);
+      top: 53%;
+
+  }
+
+  .filter-title span:nth-child(2n) {
+    margin-left: 6px;
+  }
+
+  .filter-options {
+      padding: 8px 8px 8px 10px; /* Further reduced padding */
+      border-radius: 4px; /* Reduced radius */
+      display: none;
+      background-color: #ffffff;
+      max-height: 137px;
+      overflow-y: auto;
+  }
+
+  .filter-options.active {
+      display: block;
+  }
+
+  
+  .filter-options::-webkit-scrollbar {
+    width: 2px; /* Width of the scrollbar */
+  }
+
+  .filter-options::-webkit-scrollbar-track {
+    background: rgba(238, 238, 238, 1); /* Background of the track */
+    border-radius: 4px; /* Rounded corners */
+  }
+
+  .filter-options::-webkit-scrollbar-thumb {
+    background: rgba(17, 17, 17, 1); /* Color of the scrollbar thumb */
+    border-radius: 4px; /* Rounded corners */
+  }
+
+  
+
+  .filter-options::-moz-scrollbar-track {
+    background: rgba(238, 238, 238, 1); /* Background of the track */
+    border-radius: 4px; /* Rounded corners */
+  }
+
+  .filter-options::-moz-scrollbar-thumb {
+    background: rgba(17, 17, 17, 1); /* Color of the scrollbar thumb */
+    border-radius: 4px; /* Rounded corners */
+  }
+
+  .filter-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px; /* Further reduced space */
+  }
+
+  .filter-header p {
+      margin: 0;
+      color: #666; /* Softer text color */
+      font-size: 12px; /* Smaller font size */
+  }
+
+  .filter-header a {
+      color: #007bff;
+      text-decoration: none;
+      transition: color 0.3s;
+      font-size: 12px; /* Smaller font size */
+  }
+
+  .filter-header a:hover {
+      color: #0056b3;
+  }
+
+  .filter-clear a {
+      background-color: #007bff;
+      color: #ffffff;
+  }
+
+  .filter-clear a:hover {
+      background-color: #0056b3;
+  }
+
+  .filter-group-display__price-range {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px; /* Further reduced gap */
+  }
+
+  .filter-group-display__price-range-from,
+  .filter-group-display__price-range-to {
+      display: flex;
+      align-items: center;
+  }
+
+  .filter-group-display__price-range-from input,
+  .filter-group-display__price-range-to input {
+      margin-left: 4px; 
+      padding: 6px; 
+      min-width: 85px; 
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      transition: border-color 0.3s;
+      font-size: 15px;
+  }
+
+
+  .filter-group-display__price-range-from label,
+  .filter-group-display__price-range-to label {
+      margin-left: 4px;
+      color: #666; 
+      font-size: 12px; 
+  }
+
+  .filter-options ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      user-select: none;
+  }
+
+  .filter-options li {
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      height: 24px;
+  }
+
+  .filter-options li:last-child {
+      margin-bottom: 0;
+  }
+
+  label {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      position: relative;
+      color: rgba(85, 85, 85, 1);
+      transition: color 0.1s;
+      font-size: 17px; 
+      width: 100%;
+
+  }
+
+  label:not([for*="Filter-filter.v.price"])::before {
+    content: '';
+    position: absolute;
+    left: 3px;
+    top: 1px;
+    width: 22px;
+    height: 22px;
+    border: 1.5px solid rgba(238, 238, 238, 1);
+    border-radius: 4px;
+    background-color: transparent;
+    transition: background-color 0.3s, border-color 0.3s;
+  }
+
+  label:not([for*="Filter-filter.v.price"]):not([data-color]):has(input[type="checkbox"]:checked)::before {
+    content: '✔';
+    border-color: #007bff;
+    font-size: 14px;
+    color: #007bff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  label:hover {
+      color: #007bff;
+  }
+
+  input[type="checkbox"] {
+      margin-right: 12px;
+      width: 18px; 
+      height: 16px; 
+      opacity: 0;
+  }
+
+  .color-display {
+      width: 20px; 
+      height: 20px; 
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 10px; 
+      position: relative;
+      cursor: pointer;
+  }
+  
+  label[data-color] input[type="checkbox"] {
+    display: none; 
+  }
+
+  label[data-color]::before {
+    content: unset;
+  }
+
+  .filter-form__heading {
+    font-size: 24px;
+    font-weight: 500;
+    color: rgba(17, 17, 17, 1);
+    margin: 0 0 10px;
+  }
+
+  label[data-color] .color-display::before {
+    content: '';
+    display: block;
+    width: 26px; 
+    height: 26px; 
+    border-radius: 50%;
+    border: 1px solid rgba(238, 238, 238, 1); 
+    border-color: rgba(238, 238, 238, 1);
+    background-color: transparent; 
+    position: absolute;
+    top: -3px; 
+    left: -3px;
+    transition: border-color 0.3s;
+  }
+
+  label[data-color] input[type="checkbox"]:checked + span .color-display::before {
+    border-color: rgba(17, 17, 17, 1);
+  }
+
+  label[data-color] .color-display:hover {
+    opacity: 0.8;
+  }
+
+  .applied-filter {
+      padding: 6px 12px; 
+      margin: 0 7px 0px; 
+      display: inline-block;
+      text-align: center;
+      color: #333;
+      transition: background-color 0.3s, box-shadow 0.3s;
+      border: solid 1px #f0f0f0;
+      cursor: pointer;
+      font-size: 15px; 
+      min-width: 50px;
+      letter-spacing: 0.3px;
+  }
+
+  .applied-filter--clear-all {
+    border: none;
+    font-weight: 500;
+    color: rgba(17, 17, 17, 1);
+    padding-left: 0;
+    padding-right: 0;
+    border-bottom: solid 1px rgba(17, 17, 17, 1);
+    margin-left: 19px;
+    padding-bottom: 4px;
+    letter-spacing: 0.6px;
+  }
+
+  .applied-filter a {
+      color: inherit;
+      text-decoration: none;
+  }
+
+  .applied-filter-type {
+      margin: 0 0 4px; 
+  }
+
+  .applied-filter-group {
+      margin-bottom: 8px; 
+  }
+
+  .remove-filter {
+      color: black;
+      font-weight: 500;
+      margin-left: 6px;
+      cursor: pointer;
+      text-decoration: none;
+      vertical-align: text-top;
+  }
+
+  .remove-filter:hover {
+      color: #cc0000;
+  }
+
+  .filter-count {
+    margin-left: 7px;
+      color: rgba(153, 153, 153, 1);
+      padding: 2px 4px;
+      border-radius: 8px;
+      display: inline-block;
+  }
+
+  .applied-filter-wrapper {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px 0px;
+  }
+
+  .applied-filter-select select {
+    margin-left: 10px;
+    margin-left: 10px;
+    padding: 6px 26px 6px 8px;
+    border: solid .1px rgb(243, 243, 243) ;
+    background: rgb(243, 243, 243);
+    border-radius: 100px;
+    color: rgba(18, 18, 18, 0.75);
+    font-size: 15px;
+    outline: none !important;
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 45px 0 0;
+    padding: 10px;
+    border-radius: 5px;
+    width: 100%;
+  }
+
+  .pagination .page {
+    display: inline-block;
+    margin: 0 5px;
+    padding: 7px 12px;
+    text-decoration: none;
+    color: rgba(85, 85, 85, 1);
+    border: 1px solid #ddd;
+    border-radius: 100%;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+  }
+
+  .pagination .page.current {
+    background-color: rgba(17, 17, 17, 1); 
+    color: #fff; 
+    border-color: rgba(17, 17, 17, 1); 
+  }
+
+  .pagination .page:hover {
+    background-color: rgba(17, 17, 17, 1); 
+    color: #fff; 
+    border-color: rgba(17, 17, 17, 1); 
+  }
+
+  .pagination .next,
+  .pagination .previous {
+    display: inline-block;
+    margin: 0 10px;
+    padding: 6.5px 8.5px;
+    text-decoration: none;
+    color: rgba(85, 85, 85, 1);
+    border: 1px solid #ddd;
+    border-radius: 200px;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+  }
+
+  .pagination .next svg {
+    position: relative;
+    right: -1px;
+    top: 1px;
+  }
+
+  .pagination .previous svg {
+    position: relative;
+    right: 1px;
+    top: 1.5px;
+  }
+
+  .pagination .next:hover,
+  .pagination .previous:hover {
+    background-color: rgba(17, 17, 17, 1);
+    color: #fff;
+    border-color: rgba(17, 17, 17, 1); 
+  }
+
+  .pagination .next:hover svg path,
+  .pagination .previous:hover svg path{
+    stroke: #fff;
+  }
+
+  .page.current:nth-of-type(2) {
+  }
+  
+  .image-placeholder {
+    width: 225px;
+    height: 225px;
+    background-color: #f0f0f01c; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+
+  .image-placeholder img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    z-index: 0;
+    transition: opacity 0.5s;
+  }
+
+  .image-placeholder img.loaded {
+    opacity: 1;
+  }
+
+  .loading-spinner {
+    border: 4px solid #f3f3f3; 
+    border-top: 4px solid #3498db; 
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+   @media screen and (max-width: 1260px) {
+      .product-card   {
+
+          width: 200px;
+
+      }
+  }
+
+   @media screen and (max-width: 1190px) {
+      .product-card   {
+        width: 190px;
+          
+
+      }
+  }
+
+   @media screen and (max-width: 1120px) {
+
+      .product-card   {
+
+          width: 230px;
+
+      }
+  }
+
+   @media screen and (max-width: 1040px) {
+
+      .product-card   {
+
+          width: 200px;
+
+      }
+  }
+
+  @media screen and (max-width: 980px) {
+
+    
+    .product-cards {
+      flex-direction: column;
+      padding-left: 10px;
+      padding-top: 0;
+      align-items: center; 
+      padding-top: 10px;
+    }
+
+    form:not(.hiden-left) + .product-cards {
+     background-color: #ecdcdc7d;
+     max-height: 1500px;
+     overflow: hidden;
+    }
+
+    form:not(.hiden-left) + .product-cards .image-placeholder img.loaded {
+      opacity: 0;
+    }
+
+    .image-placeholder {
+      width: 100%;
+    }
+
+    .product-card h3 {
+      margin-top: 18px;
+    }
+
+    .product-card {
+      width: 100%;
+      margin-bottom: 5px;
+    }
+
+    .filter-form {
+      min-width: 88%; 
+      overflow-y: scroll;
+      position: absolute;
+      height: 100%;
+      z-index: 1;
+      left: 0px;
+      transition: left .3s ;
+      border-radius: 0;
+    }
+
+    .filter-form.hiden-left {
+      left: -200px;
+      display: none;
+
+
+    }
+
+    .filter-clear a {
+      padding: 4px 8px;
+      font-size: 10px;
+    }
+
+    .filter-title {
+      font-size: 14px;
+      padding: 3px 10px;
+      height: 30px;
+    }
+
+    .filter-options {
+      padding: 5px;
+      max-height: 100px;
+    }
+
+    .filter-header p,
+    .filter-header a {
+      font-size: 10px;
+    }
+
+    .filter-group-display__price-range-from input,
+    .filter-group-display__price-range-to input {
+      padding: 4px;
+      width: 60px;
+    }
+
+    .filter-group-display__price-range-from label,
+    .filter-group-display__price-range-to label {
+      font-size: 10px;
+    }
+
+    label {
+      font-size: 14px;
+    }
+
+    .product-cards > div:first-child {
+      flex-wrap: wrap;
+      flex-direction: column-reverse;
+      justify-content: end;
+      align-items: center;
+      gap: 13px 0;
+    }
+
+    .applied-filter-wrapper {
+      font-size: 13px;
+      gap: 6px 0px;
+      width: 100%;
+    }
+
+    .applied-filter-select {
+      font-size: 11px;
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    .applied-filter {
+      font-size: 13px;
+      padding: 2px 2px 2px 6px;
+      max-height: 23px;
+    }
+
+    .applied-filter > span {
+      display: flex;
+      align-items: flex-start;
+    }
+
+    .applied-filter svg {
+      width: 16px;
+      height: 17px;
+      display: inline;
+    }
+
+    .applied-filter-select select {
+      font-size: 14px;
+      padding: 3px;
+    }
+
+    .applied-filter--clear-all {
+      margin-left: 5px;
+      font-size: 12px;
+    }
+
+    .filter-group {
+      padding-top: 10px;
+      padding-bottom: 10px;
+    }
+
+    input[type="checkbox"] {
+      
+    }
+  }
+{%- endstyle -%}
+
+
+<div class="section-{{ section.id }}-padding collection-product-list flex gradient color-{{ section.settings.color_scheme }}">    
+  
+  <form class="filter-form hiden-left">
+    <h2 class="filter-form__heading">Filters 
+  
+      <span onclick="this.parentElement.parentElement.classList.add('hiden-left');" style="right: 10px;top:8px;" class="icon icon--close hidden show-below-980 ">
+        
+        <svg width="14" height="13" viewBox="0 0 14 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8.36719 6.5L13.2109 11.3438C13.3411 11.474 13.3411 11.6172 13.2109 11.7734L12.3125 12.6719C12.1562 12.8021 12.013 12.8021 11.8828 12.6719L11.0625 11.8125L7.03906 7.82812L2.19531 12.6719C2.0651 12.8021 1.92188 12.8021 1.76562 12.6719L0.867188 11.7734C0.736979 11.6172 0.736979 11.474 0.867188 11.3438L5.71094 6.5L0.867188 1.65625C0.736979 1.52604 0.736979 1.38281 0.867188 1.22656L1.76562 0.328125C1.92188 0.197917 2.0651 0.197917 2.19531 0.328125L7.03906 5.17188L11.8828 0.328125C12.013 0.197917 12.1562 0.197917 12.3125 0.328125L13.2109 1.22656C13.3411 1.38281 13.3411 1.52604 13.2109 1.65625L12.3516 2.47656L8.36719 6.5Z" fill="#111111"></path>
+        </svg>
+      
+      </span>
+
+    </h2>
+
+{%- assign filterActiveValues = collection.filters | map: 'active_values' -%}
+
+    {%- for activeValues in filterActiveValues -%}
+      {% for item in activeValues %}
+        {% if item.active %}
+          {% assign IsfilterApplied = item.active  %}
+        {% endif %}
+      {% endfor %}
+      {% endfor %}
+
+    {%- for filter in collection.filters -%}
+      <div class="filter-group">
+        <div class="filter-title active">
+          <span>{{ filter.label }}</span>
+          {%- if filter.active_values.size > 0 -%}
+            <span>({{ filter.active_values.size }})</span>
+          {%- endif -%}
+        </div>
+
+        <div class="filter-options active">
+          {%- case filter.type -%}
+          {%- when 'boolean' -%}
+            <ul bool>
+              <li>
+                <label for="Filter-{{ filter.param_name }}-{{ filter.true_value.value }}">
+                  <input type="checkbox" name="{{ filter.param_name }}" value="{{ filter.true_value.value }}" id="Filter-{{ filter.param_name }}"
+                    {% if filter.true_value.active -%}checked{%- endif %}
+                    {% if filter.true_value.count == 0 and filter.true_value.active == false -%} {%- endif %}
+                  >
+                  {{ filter.true_value.label }}
+                  <span class="filter-count">({{ filter.true_value.count }})</span>
+                </label>
+              </li>
+              <li>
+                <label for="Filter-{{ filter.param_name }}-{{ filter.false_value.value }}">
+                  <input type="checkbox" name="{{ filter.param_name }}" value="{{ filter.false_value.value }}" id="Filter-{{ filter.param_name }}"
+                    {% if filter.false_value.active -%}checked{%- endif %}
+                    {% if filter.false_value.count == 0 and filter.false_value.active == false -%} {%- endif %}
+                  >
+                  {{ filter.false_value.label }}
+                  <span class="filter-count">({{ filter.false_value.count }})</span>
+                </label>
+              </li>
+            </ul>
+
+          {%- when 'list' -%}
+            <ul list >
+              {%- for filter_value in filter.values -%}
+              <li >
+                <label 
+                  {% if  filter_value.param_name == 'filter.v.option.color' %}
+                    data-color="{{ filter_value.value }}   {{  filter_value.display.type }}"
+                  {% endif %} 
+                  for="Filter-{{ filter.param_name }}-{{ forloop.index }}"
+                  >
+                  <input type="checkbox" name="{{ filter_value.param_name }}" value="{{ filter_value.value }}" id="Filter-{{ filter.param_name }}-{{ forloop.index }}"
+                    {% if filter_value.active -%}checked{%- endif %}
+                  >
+                  <span>
+                    
+                    {% if filter_value.param_name == 'filter.v.option.color' %}
+                      <span class="color-display" style="background-color: {{ filter_value.value | capitalize  }};"></span>
+                      
+                    {% endif %}
+                    
+                  </span>
+                  {{ filter_value.label | capitalize }}
+                  <span class="filter-count">({{ filter_value.count }})</span>
+                </label>
+              </li>
+              {%- endfor -%}
+            </ul>
+
+          {%- when 'price_range' -%}
+            <div class="filter-group-display__price-range">
+              <div class="filter-group-display__price-range-from">
+                <span>{{ cart.currency.symbol }}</span>
+
+                <input name="{{ filter.min_value.param_name }}" id="Filter-{{ filter.min_value.param_name }}"
+                  {% if filter.min_value.value -%}
+                    value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}"
+                  {%- endif %}
+                  type="number"
+                  placeholder="0"
+                  min="0"
+                  max="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                >
+
+                <label for="Filter-{{ filter.min_value.param_name }}">From</label>
+              </div>
+              <div class="filter-group-display__price-range-to">
+                <span>{{ cart.currency.symbol }}</span>
+
+                <input name="{{ filter.max_value.param_name }}" id="Filter-{{ filter.max_value.param_name }}"
+                  {% if filter.max_value.value -%}
+                    value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}"
+                  {%- endif %}
+                  type="number"
+                  placeholder="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                  min="0"
+                  max="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                >
+
+                <label for="Filter-{{ filter.max_value.param_name }}">To</label>
+              </div>
+            </div>
+          {%- endcase -%}
+        </div>
+      </div> 
+    {%- endfor -%}
+  </form>
+
+  <div class="product-cards">
+    {% paginate collection.products by 50 %}
+
+      <div style="width: 100%" class="">
+
+        <div class="applied-filter-wrapper">
+          {% assign grouped_filters = "" %}
+          {% if collection.filters.size > 0 and IsfilterApplied %}
+            
+            Your Filters : 
+          {% endif %}
+          {%- for filter in collection.filters -%}
+
+            {%- if filter.type == "price_range" -%}
+              {%- if filter.min_value.value != nil or filter.max_value.value != nil -%}
+                {% assign min_value = filter.min_value.value | default: 0 %}
+                {% assign max_value = filter.max_value.value | default: filter.range_max %}
+                
+                  <p class="applied-filter">
+                    <a href="{{ filter.url_to_remove }}" class="remove-filter-link" data-url="{{ filter.url_to_remove }}">{{ min_value | money }} - {{ max_value | money }} 
+                    <span  class="remove-filter" >
+                      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </span>
+                  </a>
+                  </p>
+                
+              {%- endif -%}
+            {%- else -%}
+              {%- if filter.active_values.size > 0 -%}
+                
+                  {%- for filter_value in filter.active_values -%}
+                    <p class="applied-filter">
+                      <span href="{{ filter_value.url_to_remove }}" class="remove-filter-link" data-url="{{ filter_value.url_to_remove }}">{{ filter_value.label | capitalize }} 
+                        <span  class="remove-filter" >
+                          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                        </span>
+                      </span>
+                    </p>
+                  {%- endfor -%}
+                  
+              {%- endif -%}
+          
+            {%- endif -%}
+          {%- endfor -%}
+          {% if collection.filters.size > 0 and IsfilterApplied %}
+          <p class="applied-filter applied-filter--clear-all">
+            <a href="{{ collection.url }}" class="">
+            Clear All
+            </a>
+          </p>
+        {% endif %}
+        </div>
+
+        <div class="product-count">
+          {% if paginate.pages > 0 %}
+              {% if paginate.current_page == paginate.pages %}
+                {{ collection.products.size }} of {{ collection.all_products_count }} products
+              {% else %}
+                {{ paginate.page_size }} of {{ collection.all_products_count }} products
+              {% endif %}
+          {% else %}
+            {{ collection.products.size }} products
+          {% endif %}
+        </div>
+
+        <div class="applied-filter-select">
+          <span onclick="this.parentElement.parentElement.parentElement.parentElement.querySelector('form').classList.remove('hiden-left')" class="hidden show-below-980">
+            <svg width="24" height="21" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="
+              font-size: 2px;">
+                      <path d="M3 4h18v2h-18V4zm4 6h10v2h-10v-2zm-2 6h14v2h-14v-2z" fill="currentColor"></path>
+            </svg>
+          </span>
+          <span>
+          
+            Sort by :
+            <select onchange="sortCollection(this)">
+              {% for sort in collection.sort_options %}
+                <option value="{{ sort.value }}" {% if sort.value == collection.sort_by %}selected{% endif %}>{{ sort.name }}</option>
+              {% endfor %}
+            </select>
+          </span>
+        </div>
+
+      </div>
+
+      {% if collection.products.size > 0 %}
+        
+        {% for product_card in collection.products %}
+          
+          <a href="{{ product_card.url }}" class="product-card">
+            
+            <div class="image-placeholder">
+              
+              <img src="{{ product_card.featured_image | image_url : width: 250, height: 250, pad_color: 'fff'  }}" alt="Product Image" onload="this.classList.add('loaded');">
+            
+            </div>
+  
+            <h3 class="home-product-card__title">
+              {{  product_card.title | capitalize }}
+            </h3>
+            <p class="home-product-card__price">
+              {{ product_card.price | money_with_currency }}
+            </p>
+            {% assign color_options = product_card.variants | map: 'option2' | uniq %}
+            {% if color_options.size > 0 %}
+              <label data-color=" kkk  " class="home-product-card__colors">
+                
+                  {% for color in color_options %}
+                    
+                      <span class="color-display" style="background-color: {{ color | escape }};margin-top:15px;opacity:0.8;"></span>
+  
+                  {% endfor %}
+                
+                </label>
+              {% endif %}
+          </a>
+  
+        {% endfor %}
+
+      {%  else %}  
+      <div style="font-weight: bold;font-size: 25px;">No products found
+      </div>
+      {% endif %}
+    
+     
+      <div class="pagination">
+        {% if paginate.previous %}
+          <a href="{{ paginate.previous.url }}" class="previous">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="16" height="16">
+              <path d="M16 19l-7-7 7-7" stroke="rgba(85, 85, 85, 1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </a>
+        {% endif %}
+        
+        {% for part in paginate.parts %}
+          
+          {% if part.is_link %}
+            <a href="{{ part.url }}" class="page">{{ part.title }}</a>
+          {% elsif part.title != '&hellip;' %}
+
+            <span class="page current">{{ part.title }}</span>
+
+          {% else %}
+
+            <span style="max-width: 35px;padding: 7px 9px;" class="page current">{{ part.title }}</span>
+
+          {% endif %}
+          <script>
+            console.log('part title ' , {{ part.title | json }})
+          </script>
+        {% endfor %}
+        
+        {% if paginate.next %}
+          <a href="{{ paginate.next.url }}" class="next">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="16" height="16">
+              <path d="M8 5l7 7-7 7" stroke="rgba(85, 85, 85, 1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+
+          </a>
+        {% endif %}
+      </div>
+
+    {% endpaginate %}
+
+  </div>
+  
+</div>
+
+<script>
+
+  document.querySelectorAll('.filter-title').forEach(title => {
+    title.addEventListener('click', () => {
+      title.classList.toggle('active');
+      const filterOptions = title.nextElementSibling;
+      filterOptions.classList.toggle('active');
+    });
+  });
+
+  function attachFilterHandlers() {
+    document.querySelectorAll('.filter-form input[type="checkbox"]').forEach(checkbox => {
+      checkbox.addEventListener('change', function() {
+        const formData = new FormData(document.querySelector('.filter-form'));
+        
+        const currentSort = new URLSearchParams(window.location.search).get('sort_by');
+        if (currentSort) {
+          formData.append('sort_by', currentSort);
+        }
+
+        const params = new URLSearchParams(formData).toString();
+        const url = `${window.location.pathname}?${params}`;
+        
+        const filterState = [];
+        const scrollState = [];
+        document.querySelectorAll('.filter-title').forEach(title => {
+          filterState.push(title.classList.contains('active'));
+          scrollState.push(title.nextElementSibling.scrollTop);
+        });
+
+        history.pushState({ url: url, filterState: filterState, scrollState: scrollState }, '', url);
+        updateContent(url, filterState, scrollState);
+        });
+    });
+  }
+
+  function attachAppliedFilterHandlers() {
+    document.querySelectorAll('.remove-filter-link').forEach(link => {
+      link.addEventListener('click', function(event) {
+        event.preventDefault();
+        const url = this.getAttribute('data-url');
+        const filterState = [];
+        const scrollState = [];
+        document.querySelectorAll('.filter-title').forEach(title => {
+          filterState.push(title.classList.contains('active'));
+          scrollState.push(title.nextElementSibling.scrollTop);
+        });
+
+        history.pushState({ url: url, filterState: filterState, scrollState: scrollState }, '', url);
+        updateContent(url, filterState, scrollState);
+      });
+    });
+  }
+
+  function updateContent(url, filterState = null, scrollState = null) {
+    const productCards = document.querySelector('.product-cards');
+    productCards.classList.add('loading');
+
+    fetch(url, {
+      method: 'GET',
+      headers: { 'Accept': 'text/html' }
+    })
+    .then(response => response.text())
+    .then(html => {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+
+      document.querySelector('.filter-form').innerHTML = doc.querySelector('.filter-form').innerHTML;
+      document.querySelector('.applied-filter-wrapper').innerHTML = doc.querySelector('.applied-filter-wrapper').innerHTML;
+      document.querySelector('.product-cards').innerHTML = doc.querySelector('.product-cards').innerHTML;
+
+      attachAppliedFilterHandlers();
+      attachFilterHandlers();
+      attachPriceRangeHandlers()
+
+      if (filterState !== null) {
+        document.querySelectorAll('.filter-title').forEach((title, index) => {
+          if (filterState[index]) {
+            title.classList.add('active');
+            title.nextElementSibling.classList.add('active');
+          } else {
+            title.classList.remove('active');
+            title.nextElementSibling.classList.remove('active');
+          }
+        });
+      }
+
+      if (scrollState !== null) {
+        document.querySelectorAll('.filter-options').forEach((filterOptions, index) => {
+          filterOptions.scrollTop = scrollState[index];
+        });
+      }
+
+      document.querySelectorAll('.filter-title').forEach(title => {
+        title.addEventListener('click', () => {
+          title.classList.toggle('active');
+          const filterOptions = title.nextElementSibling;
+          filterOptions.classList.toggle('active');
+        });
+      });
+
+      productCards.classList.remove('loading');
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      productCards.classList.remove('loading');
+    });
+  }
+
+  function attachPriceRangeHandlers() {
+    document.querySelectorAll('.filter-group-display__price-range input[type="number"]').forEach(input => {
+      input.addEventListener('change', handlePriceRangeChange);
+    });
+  }
+
+
+  function handlePriceRangeChange() {
+    let sortValue;
+    const formData = new FormData(document.querySelector('.filter-form'));
+    if (sortValue) {
+      formData.append('sort_by', sortValue);
+    } else {
+      formData.append('sort_by', document.querySelector('.applied-filter-select select').value);
+    }
+
+    const params = new URLSearchParams(formData).toString();
+    const url = `${window.location.pathname}?${params}`;
+
+
+    const filterState = [];
+    const scrollState = [];
+    document.querySelectorAll('.filter-title').forEach(title => {
+      filterState.push(title.classList.contains('active'));
+      scrollState.push(title.nextElementSibling.scrollTop);
+    });
+
+    history.pushState({ url: url, filterState: filterState, scrollState: scrollState }, '', url);
+    updateContent(url, filterState, scrollState)
+    
+  }
+
+  function sortCollection(selectElement) {
+    const selectedSortValue = selectElement.value;
+    const params = new URLSearchParams(window.location.search);
+    params.set('sort_by', selectedSortValue);
+    const url = `${window.location.pathname}?${params.toString()}`;
+
+    const filterState = [];
+    const scrollState = [];
+    document.querySelectorAll('.filter-title').forEach(title => {
+      filterState.push(title.classList.contains('active'));
+      scrollState.push(title.nextElementSibling.scrollTop);
+    });
+
+    history.pushState({ url: url, filterState: filterState, scrollState: scrollState }, '', url);
+    updateContent(url, filterState, scrollState);
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    attachFilterHandlers();
+    attachAppliedFilterHandlers();
+    attachPriceRangeHandlers()
+
+    window.addEventListener('popstate', function(event) {
+      if (event.state && event.state.url) {
+        updateContent(event.state.url);
+      }
+    });
+  });
+
+</script>
+
+{% schema %}
+{
+  "name": "t:sections.main-collection-product-grid.name",
+  "class": "section",
+  "settings": [
+    
+    
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 36
+    }
+  ]
+}
+{% endschema %}

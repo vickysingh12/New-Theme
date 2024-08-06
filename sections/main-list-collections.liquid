@@ -1,0 +1,36 @@
+{% comment %} {{ 'component-card.css' | asset_url | stylesheet_tag }} {% endcomment %}
+{{ 'section-collection-list.css' | asset_url | stylesheet_tag }}
+
+<div class="page-width">
+  <h1 style="text-align: center;" class="title title--primary inline-richtext{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-in{% endif %}">
+    {{ section.settings.title }}
+  </h1>
+   
+  <div class="collection-list">
+    {% for collection in collections %}
+      <div class="collection-item">
+          <a href="{{ collection.url }}">
+              <img src="{{ collection.image | image_url }}" alt="{{ collection.title }}">
+              <h2>{{ collection.title }}</h2>
+              <div class="hover-arrow"></div>
+          </a>
+      </div>
+      {% endfor %}
+</div>
+
+</div>
+{% schema %}
+{
+  "name": "t:sections.main-list-collections.name",
+  "class": "section",
+  "settings": [
+    {
+      "type": "inline_richtext",
+      "id": "title",
+      "label": "t:sections.main-list-collections.settings.title.label",
+      "default": "t:sections.main-list-collections.settings.title.default"
+    } 
+    
+  ]
+}
+{% endschema %}

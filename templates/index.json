@@ -1,0 +1,12 @@
+{
+  "sections": {
+    "home-collection": {
+      "type": "home-collection-list",
+      "settings": {
+      }
+    }
+  },
+  "order": [
+    "home-collection"
+  ]
+}

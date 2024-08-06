@@ -1,0 +1,236 @@
+<!doctype html>
+<html class="js" lang="{{ request.locale.iso_code }}">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="">
+    <link rel="canonical" href="{{ canonical_url }}">
+
+    {%- if settings.favicon != blank -%}
+      <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
+    {%- endif -%}
+
+    {%- unless settings.type_header_font.system? and settings.type_body_font.system? -%}
+      <link rel="preconnect" href="https://fonts.shopifycdn.com" crossorigin>
+    {%- endunless -%}
+
+    <title>
+      {{ page_title }}
+    </title>
+
+    {% if page_description %}
+      <meta name="description" content="{{ page_description | escape }}">
+    {% endif %}
+
+    {% render 'meta-tags' %}
+
+    {{ content_for_header }}
+
+    {%- liquid
+      assign body_font_bold = settings.type_body_font | font_modify: 'weight', 'bold'
+      assign body_font_med = settings.type_body_font | font_modify: 'weight', '500'
+    %}
+
+    {% style %}
+      {{ body_font_bold | font_face: font_display: 'swap' }}
+      {{ body_font_med | font_face: font_display: 'swap' }}
+      {{ settings.type_header_font | font_face: font_display: 'swap' }}
+     
+      {% for scheme in settings.color_schemes -%}
+        {% assign scheme_classes = scheme_classes | append: ', .color-' | append: scheme.id %}
+        {% if forloop.index == 1 -%}
+          :root,
+        {%- endif %}
+        .color-{{ scheme.id }} {
+          --color-background: {{ scheme.settings.background.red }},{{ scheme.settings.background.green }},{{ scheme.settings.background.blue }};
+        {% if scheme.settings.background_gradient != empty %}
+          --gradient-background: {{ scheme.settings.background_gradient }};
+        {% else %}
+          --gradient-background: {{ scheme.settings.background }};
+        {% endif %}
+
+        {% liquid
+          assign background_color = scheme.settings.background
+          assign background_color_brightness = background_color | color_brightness
+          if background_color_brightness <= 26
+            assign background_color_contrast = background_color | color_lighten: 50
+          elsif background_color_brightness <= 65
+            assign background_color_contrast = background_color | color_lighten: 5
+          else
+            assign background_color_contrast = background_color | color_darken: 25
+          endif
+        %}
+
+        --color-foreground: {{ scheme.settings.text.red }},{{ scheme.settings.text.green }},{{ scheme.settings.text.blue }};
+        --color-background-contrast: {{ background_color_contrast.red }},{{ background_color_contrast.green }},{{ background_color_contrast.blue }};
+        --color-shadow: {{ scheme.settings.shadow.red }},{{ scheme.settings.shadow.green }},{{ scheme.settings.shadow.blue }};
+        --color-button: {{ scheme.settings.button.red }},{{ scheme.settings.button.green }},{{ scheme.settings.button.blue }};
+        --color-button-text: {{ scheme.settings.button_label.red }},{{ scheme.settings.button_label.green }},{{ scheme.settings.button_label.blue }};
+        --color-secondary-button: {{ scheme.settings.background.red }},{{ scheme.settings.background.green }},{{ scheme.settings.background.blue }};
+        --color-secondary-button-text: {{ scheme.settings.secondary_button_label.red }},{{ scheme.settings.secondary_button_label.green }},{{ scheme.settings.secondary_button_label.blue }};
+        --color-link: {{ scheme.settings.secondary_button_label.red }},{{ scheme.settings.secondary_button_label.green }},{{ scheme.settings.secondary_button_label.blue }};
+        --color-badge-foreground: {{ scheme.settings.text.red }},{{ scheme.settings.text.green }},{{ scheme.settings.text.blue }};
+        --color-badge-background: {{ scheme.settings.background.red }},{{ scheme.settings.background.green }},{{ scheme.settings.background.blue }};
+        --color-badge-border: {{ scheme.settings.text.red }},{{ scheme.settings.text.green }},{{ scheme.settings.text.blue }};
+        --payment-terms-background-color: rgb({{ scheme.settings.background.rgb }});
+      }
+      {% endfor %}
+
+      {{ scheme_classes | prepend: 'body' }} {
+        color: rgba(var(--color-foreground), 0.75);
+        background-color: rgb(var(--color-background));
+      }
+
+      :root {
+
+        --font-body-family: {{ settings.type_body_font.family }}, {{ settings.type_body_font.fallback_families }};
+        --font-body-style: {{ settings.type_body_font.style }};
+        --font-body-weight: {{ settings.type_body_fotype_body_fontnt.weight }};
+        --font-body-weight-bold: {{ settings..weight | plus: 300 | at_most: 1000 }};
+        --font-heading-family: {{ settings.type_header_font.family }}, {{ settings.type_header_font.fallback_families }};
+        --font-heading-style: {{ settings.type_header_font.style }};
+        --font-heading-weight: {{ settings.type_header_font.weight }};
+        --font-body-scale: {{ settings.body_scale | divided_by: 100.0 }};
+        --font-heading-scale: {{ settings.heading_scale | times: 1.0 | divided_by: settings.body_scale }};
+
+        --variant-pills-radius: 200px;
+        --variant-pills-border-width: 1px;
+        --variant-pills-border-opacity: 1;
+        --inputs-border-width: 1px;
+        --alpha-button-background: 1;
+    
+      }
+
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: inherit;
+      }
+
+      html {
+        box-sizing: border-box;
+        height: 100%;
+      }
+
+      body {
+        margin: 0;
+        font-family: var(--font-body-family);
+        font-style: var(--font-body-style);
+        font-weight: var(--font-body-weight);
+      }
+
+
+      .button--secondary, .button--tertiary {
+        --color-button: var(--color-secondary-button);
+        --color-button-text: var(--color-secondary-button-text);
+      }
+      
+    {% endstyle %}
+
+    {{ 'base.css' | asset_url | stylesheet_tag }}
+    <div id="overlay" class="overlay"></div>
+
+    {%- unless settings.type_body_font.system? -%}
+      <link rel="preload" as="font" href="{{ settings.type_body_font | font_url }}" type="font/woff2" crossorigin>
+    {%- endunless -%}
+    {%- unless settings.type_header_font.system? -%}
+      <link rel="preload" as="font" href="{{ settings.type_header_font | font_url }}" type="font/woff2" crossorigin>
+    {%- endunless -%}
+
+ 
+  </head>
+
+  <body >
+  
+
+    {% sections 'header-group' %}
+
+    <main id="MainContent" class="content-for-layout focus-none" role="main" tabindex="-1">
+      {{ content_for_layout }}
+    </main>
+
+    {% sections 'footer-group' %}
+
+
+  
+    <div id="errorPopup" class="error-popup">
+    <strong>Error!</strong>
+    </div>
+    
+  </body>
+
+  <script>
+
+
+
+    const overlay = document.getElementById('overlay');
+    const searchIconButton = document.getElementById('overlayButton');
+    const hamBurgerClose = document.getElementsByClassName('js-hamburgerClose')?.[0];
+    const searchClose = document.getElementsByClassName('js-search-close')?.[0];
+    const searchForm = document.getElementsByClassName('search')?.[0];
+    
+
+    searchIconButton.addEventListener('click', function() {
+        showOverlay()
+        searchForm.classList.add('is-active')
+        
+    })
+    
+    function closeOverlay() {
+        overlay.classList.remove('show');
+        document.removeEventListener('keydown', closeOverlay);
+    }
+
+    function showOverlay() {
+        overlay.classList.add('show');
+        document.addEventListener('keydown', closeOverlay);
+
+    }
+
+    const hamburgerIcon = document.getElementsByClassName('hamburger__icon')?.[0]
+    const hamburgerMenu = document.getElementsByClassName('js-hamburgerMenu')?.[0]
+    
+    hamburgerIcon.addEventListener('click' , function() {
+      overlay.classList.add('show')
+      hamburgerMenu.classList.toggle('is-active')
+    })
+    
+    hamBurgerClose.addEventListener('click' , function() {
+      closeOverlay()
+      hamburgerMenu.classList.remove('is-active')
+    })
+    
+    searchClose.addEventListener('click' , function() {
+      closeOverlay()
+      searchForm.classList.remove('is-active')
+    })
+    
+    console.log({{ routes | json }})
+    window.shopUrl = '{{ request.origin }}';
+  
+    function showErrorPopup(error) {
+
+      var popup = document.getElementById('errorPopup');
+      popup.querySelector('strong').innerHTML = error;
+
+      popup.classList.add('show');
+      popup.style.display = 'block';
+
+      setTimeout( function() {
+        popup.classList.remove('show');
+        
+        setTimeout(function() {
+          popup.style.display = 'none';
+        }, 500); // Delay to match the transition duration
+
+      }, 3000 ); // Display duration for the popup
+
+    }
+
+
+
+
+    </script>
+</html>

@@ -1,0 +1,24 @@
+{% comment %}
+
+{% endcomment %}
+    
+
+{%- liquid
+    assign productitem = product
+  -%}
+
+  <a href="{{ productitem.url }}" class="home-product-card">
+
+    <div class="home-product-card__img-wrapper"  >
+        <img src="{{ productitem.featured_image | image_url : width: 270 , height: 238 }}" >
+        <img class="hover-img" src="{{  productitem.images[1]  | image_url: width: 270 , height: 238 }}" >
+    </div>
+    <h3 class="home-product-card__title">
+        {{ productitem.title | capitalize }}
+    </h3>
+    <p class="home-product-card__price">
+        {{ productitem.price | money_with_currency }}
+    </p> 
+    </a>
+
+

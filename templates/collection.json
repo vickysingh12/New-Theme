@@ -1,0 +1,44 @@
+{
+  "sections": {
+    "banner": {
+      "type": "image-with-text",
+      "settings": {
+        "image": "{{ collection.image }}",
+        "color_scheme": "scheme-1"
+      },
+      "blocks": {
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "heading": "{{ collection.title }}",
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>{{ collection.title }}</p>",
+          } 
+        },
+        "buttons": {
+          "type": "button",
+          "settings": {
+            "button_link_1" : "{{ collection.url }}",
+            "button_label" : "See all "
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "text",
+        "buttons"
+      ]
+    },
+    "product-grid": {
+      "type": "main-collection-product-grid"
+    }
+  },
+  "order": [
+    "banner",
+    "product-grid"
+  ]
+}

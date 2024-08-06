@@ -1,0 +1,206 @@
+.tab-show {
+  display: none;
+}
+
+.hidden {
+  display: none;
+}
+
+quantity-input {
+  color: rgba(var(--color-foreground));
+  position: relative;
+  width: 142px;
+  border-radius: var(--inputs-radius);
+  min-height: 47px;
+  display: flex;
+  border: solid 1px;
+}
+
+.quantity__input {
+  color: currentColor;
+  font-family: var(--font-body-family);
+  font-style: var(--font-body-style);
+  font-weight: var(--font-body-weight);
+  font-size: 16px;
+  font-weight: 500;
+  opacity: 0.85;
+  text-align: center;
+  background-color: transparent;
+  border: 0;
+  padding: 0 5px;
+  width: 100%;
+  flex-grow: 1;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input:focus {
+  outline: none !important;
+}
+
+.product-form__submit {
+  overflow: hidden;
+  font-size: 15px;
+  letter-spacing: 1px;
+  line-height: 18px;
+  width: 100%;
+  appearance: none;
+  max-height: 47px;
+  border: solid 1px rgb(var(--color-button-text));
+  padding: 14px 0px;
+  text-align: center;
+  display: block;
+  background-color: rgba(var(--color-button), var(--alpha-button-background));
+  color: rgb(var(--color-button-text));
+  cursor: pointer;
+}
+
+.product-form__submit--buy {
+  background-color: black;
+  color: rgb(var(--color-button-text));
+  border: solid 1px rgb(var(--color-button));
+  margin-top: 10px;
+}
+
+.product-form__submit:hover {
+  outline: solid 1px rgb(var(--color-button-text));
+}
+
+.product-form__submit[disabled] {
+  border-color: rgba(var(--color-button-text), 0.1);
+  outline-color: rgba(var(--color-button-text), 0.1);
+}
+
+.product-form__submit--buy:hover {
+  outline: solid 1px rgb(var(--color-button));
+}
+
+quantity-input svg {
+  width: 10px;
+  pointer-events: none;
+}
+
+quantity-input button {
+  width: 45px;
+  flex-shrink: 0;
+  font-size: 28.8px;
+  border: 0;
+  background-color: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgb(var(--color-foreground));
+  padding: 0;
+}
+
+quantity-input button.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+quantity-input::after {
+  pointer-events: none;
+  content: "";
+  position: absolute;
+  top: var(--inputs-border-width);
+  right: var(--inputs-border-width);
+  bottom: var(--inputs-border-width);
+  left: var(--inputs-border-width);
+  border: 0.1rem solid transparent;
+  border-radius: var(--inputs-radius);
+  box-shadow: 0 0 0 var(--inputs-border-width)
+    rgba(var(--color-foreground), var(--inputs-border-opacity));
+  transition: box-shadow var(--duration-short) ease;
+  z-index: 1;
+}
+
+quantity-input input::-webkit-inner-spin-button {
+  display: none;
+}
+
+#MainContent > *[id^="shopify-section-template"] {
+  margin-bottom: 40px;
+}
+
+.clipped-text-4 {
+  display: -webkit-box; /* Use the box model */
+  -webkit-box-orient: vertical; /* Set vertical orientation */
+  -webkit-line-clamp: 3; /* Number of lines to show */
+  overflow: hidden; /* Hide overflowing text */
+  text-overflow: ellipsis; /* Add ellipsis (...) */
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent overlay */
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensure overlay is on top */
+  pointer-events: none;
+}
+
+.overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.overlay-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  font-size: 18px;
+}
+
+.error-popup {
+  display: none;
+  position: fixed;
+  top: 20px;
+  right: -300px;
+  width: 300px;
+  padding: 15px;
+  background-color: #f44336;
+  color: white;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  transition: right 0.5s ease-out;
+}
+
+.error-popup.show {
+  right: 20px;
+}
+
+@media screen and (max-width: 1024px) {
+  .tab-hide {
+    display: none;
+  }
+
+  .tab-show {
+    display: block;
+  }
+}
+
+@media screen and (max-width: 980px) {
+  .show-below-980 {
+    display: block;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  #MainContent > *[id^="shopify-section-template"] {
+    margin-bottom: 30px;
+  }
+
+  .mobile-hide {
+    display: none !important;
+  }
+}
